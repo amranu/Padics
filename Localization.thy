@@ -734,10 +734,9 @@ proof-
       (t \<otimes> t') \<otimes> ((snd x' \<otimes> snd y') \<otimes> (s \<otimes> r') \<ominus> (s \<otimes> s') \<otimes> (snd x' \<otimes> fst y')) =
       (t \<otimes> t') \<otimes> ((snd x' \<otimes> snd y') \<otimes> (s' \<otimes> r)) \<ominus> (t \<otimes> t') \<otimes> ((s \<otimes> s') \<otimes> (snd y' \<otimes> fst x')) \<oplus> 
       (t \<otimes> t') \<otimes> ((snd x' \<otimes> snd y') \<otimes> (s \<otimes> r')) \<ominus> (t \<otimes> t') \<otimes> ((s \<otimes> s') \<otimes> (snd x' \<otimes> fst y'))"
-      sorry
-       (* using f32 f33 \<open>snd x' \<otimes> snd y' \<in> carrier R\<close> \<open>t \<otimes> s \<otimes> snd x' \<in> carrier R\<close> assms(2) f17 f18 f19
-        f25 f30 f5 f7 f9 l_zero r_null rel_def zero_closed 
-      by auto  *)
+       using f32 f33 \<open>snd x' \<otimes> snd y' \<in> carrier R\<close> \<open>t \<otimes> s \<otimes> snd x' \<in> carrier R\<close> assms(2) f17 f18 f19
+        f25 f30 f5 f7 f9 l_zero r_null rel_def zero_closed  by (metis (no_types, lifting) 
+           SigmaD1 partial_object.select_convs(1) semiring_simprules(3))  
     then have f40:"((t' \<otimes> s' \<otimes> snd y') \<otimes> (t \<otimes> (snd x' \<otimes> r \<ominus> s \<otimes> fst x'))) \<oplus> 
       ((t \<otimes> s \<otimes> snd x') \<otimes> (t' \<otimes> (snd y' \<otimes> r' \<ominus> s' \<otimes> fst y'))) = 
       ((t \<otimes> t') \<otimes> ((snd x' \<otimes> snd y') \<otimes> (s' \<otimes> r) \<ominus> (s \<otimes> s') \<otimes> (snd y' \<otimes> fst x'))) \<oplus> 
