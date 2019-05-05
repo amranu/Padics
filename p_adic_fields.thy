@@ -17,15 +17,6 @@ lemma (in ideal) prin_ideal_in_ideal:
   shows "Idl {a} \<subseteq>I"
   by (simp add: assms genideal_minimal is_ideal) 
 
-(*picks the minimal natural number representative from a set of integers*)
-
-definition nat_rep:: "int set \<Rightarrow> nat" where
-"nat_rep s = (LEAST (n::nat). n \<in> s)"
-
-(*picks the minimal positive integer element from a set of integers*)
-
-definition rep:: "int set \<Rightarrow> int" where 
-"rep s = of_nat (nat_rep s)"
 
 (*A characterization of the set "ZMod n m"*)
 
@@ -53,134 +44,10 @@ proof
           abelian_subgroupI3 ideal_def int.genideal_ideal 
           int_Zcarr mem_Collect_eq ringE(1) top.extremum) 
 
-    
-    
-
-
   qed
 qed
 
-(*Characterizes nat_rep on additive cosets of the integers with the mod operation*)
 
-lemma nat_rep_is_mod:
-  fixes n::nat fixes m::nat
-  shows "nat_rep (ZMod n m) = ((m mod n) ::nat)"
-proof-
-  have A: "((m mod n)::nat) \<in> (ZMod n m)" 
-    by (simp add: Zmod_set of_nat_mod) 
-  have B: "\<forall>x::nat. x \<in> (ZMod n m) \<longrightarrow> (m mod n) \<le>x"
-    by (metis (mono_tags, lifting) Zmod_set mem_Collect_eq mod_less_eq_dividend nat_int zmod_int) 
-  have "(m mod n) = (LEAST (l::nat). l \<in>(ZMod n m)  )" 
-    using A B by (meson LeastI_ex Least_le not_le order.not_eq_order_implies_strict) 
-  then show ?thesis 
-    using nat_rep_def by simp
-qed
-
-(*Characterizes rep on additive cosets of the integers with the mod operation*)
-
-lemma rep_is_mod0:
-  assumes "m \<ge>0"
-  assumes "(n::int) \<ge>0"
-  shows "rep (ZMod n m) = m mod n"
-  by (metis assms(1) assms(2) int_nat_eq
-      nat_rep_is_mod rep_def zmod_int) 
-
-(************************   "ZMod m _" is a left inverse for rep    *******************************)
-
-lemma rep_prop0:
-  assumes "x \<in> carrier (ZFact m)"
-  assumes "m > 0"
-  shows "x = ZMod m (rep x)"
-proof-
-  have "x \<in> a_rcosets\<^bsub>\<Z>\<^esub> (Idl\<^bsub>\<Z>\<^esub> {m})" 
-    by (metis ZFact_defs(1) ZFact_defs(2) assms(1) partial_object.select_convs(1))  
-  then have "x \<in> (\<Union>a\<in>carrier \<Z>. {(Idl\<^bsub>\<Z>\<^esub> {m}) +>\<^bsub>\<Z>\<^esub> a})" 
-    using A_RCOSETS_def' by blast 
-  then obtain a where "x = (Idl\<^bsub>\<Z>\<^esub> {m}) +>\<^bsub>\<Z>\<^esub> a" 
-    by auto
-  then have P: "x = ZMod m a"
-    by (simp add: ZMod_def) 
-  then have "a mod m = (rep x) mod m" 
-    by (smt Euclidean_Division.pos_mod_sign 
-        ZMod_eq_mod assms(2) mod_mod_trivial rep_is_mod0) 
-  then show ?thesis 
-    using P ZMod_eq_mod by blast   
-qed
-
-lemma rep_prop:
-  assumes "x \<in> carrier (ZFact (m::int))"
-  assumes "m \<noteq>0"
-  shows "x = ZMod m (rep x)"
-proof(cases "m >0")
-  case True then show ?thesis
-    using assms(1) rep_prop0 by metis
-next
-  case False
-  have "(Idl\<^bsub>\<Z>\<^esub> {m}) = (Idl\<^bsub>\<Z>\<^esub> {(-m)})" 
-    using Idl_eq_abs by auto
-  then have P: "(ZFact (m::int)) = (ZFact ((-m)::int))" 
-    using ZFact_def by simp   
-  then have P0: "x \<in>carrier (ZFact ((-m)::int))" using assms(1) by auto
-  have P1: "(-m) >0" using assms(2) False by auto 
-  then have P2: "x = ZMod (-m) (rep x)"
-    using rep_prop0 P0 P1 by auto   
-  have P3: "ZMod (-m) (rep x) = ZMod m (rep x)" 
-    by (simp add: ZMod_defs(1) \<open>Idl\<^bsub>\<Z>\<^esub> {m} = Idl\<^bsub>\<Z>\<^esub> {- m}\<close>) 
-  then show ?thesis 
-    using P2 by auto 
-qed
-
-(*rep always returns a positive representative*)
-
-lemma rep_pos:
-  fixes m
-  assumes "m \<noteq>0"
-  assumes "x \<in>carrier (ZFact m)"
-  assumes "x \<noteq> \<zero>\<^bsub>ZFact m\<^esub>" 
-  shows "rep x > 0"
-proof-
-  have "rep x \<noteq>0"
-  proof
-    assume A: "rep x = 0"
-    show False
-    proof-
-      have "x =  \<zero>\<^bsub>ZFact m\<^esub>" using rep_prop assms A ZFact_defs 
-        by (metis INTEG_def UNIV(2) ZMod_def int.a_coset_add_zero ring_record_simps(11)) 
-      then show ?thesis  using assms(3) by blast 
-    qed
-  qed
-  then show ?thesis 
-    by (simp add: rep_def) 
-qed
-
-(*The rep of the zero coset is 0*)
-
-lemma rep_zero:
-  fixes m 
-  assumes "m > 0"
-  assumes "x = \<zero>\<^bsub>ZFact m\<^esub>"
-  shows "rep x = 0"
-proof-
-  let ?x = "rep x"
-  have "?x mod m = 0" 
-    by (smt Idl_subset_eq_dvd ZFact_defs(1) ZFact_defs(2) 
-        ZFact_is_cring Zmod_set assms(1) assms(2) 
-        cring.cring_simprules(2) dvd_imp_mod_0 int_Idl_subset_ideal
-        mem_Collect_eq rep_prop ring.simps(1))
-  then show ?thesis 
-    by (smt Euclidean_Division.pos_mod_sign 
-        ZFact_is_cring ZMod_mod assms(1) assms(2) 
-        cring.cring_simprules(2) rep_is_mod0 rep_prop)
-qed
-
-(*rep of a ZFact element is always nonnegative*)
-
-lemma rep_nonneg:
-  assumes "m \<noteq>0"
-  assumes "x \<in>carrier (ZFact m)"
-  shows "rep x \<ge> 0"
-  using rep_zero rep_pos 
-  by (simp add: rep_def)
 
 (*restriction maps from Z/mZ for arbitrary m to Z/nZ. Will only be a morphism of rings when n|m.*)
 
