@@ -10,6 +10,7 @@ Main
           "~~/src/HOL/Algebra/IntRing"
           "~~/src/HOL/Algebra/RingHom"
           "~~/src/HOL/HOL-Computational_Algebra.Primes"
+          "~~/src/HOL/Number_Theory/Residues"
 begin
 
 lemma (in ideal) prin_ideal_in_ideal:
@@ -60,7 +61,7 @@ lemma res_id:
   assumes "x \<in> carrier (ZFact (n::int))"
   assumes "n \<noteq>0"
   shows "res n x = x"
-  using rep_prop res_def assms(1) assms(2) by auto
+  using assms(1) assms(2) by auto
 
 (*res actually maps ZFact n to ZFact m*)
 
